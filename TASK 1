@@ -1,0 +1,75 @@
+Producer Output:
+
+Java Producer Code :
+
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import java.util.Properties;
+
+public class ProducerExample {
+    public static void main(String[] args) {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+        for (int i = 0; i < 10; i++) {
+            producer.send(new ProducerRecord<>("my-topic", "key-" + i, "value-" + i));
+            System.out.println("Sent message: (" + "key-" + i + ", value-" + i + ")");
+        }
+        producer.close();
+    }
+}
+Producer Output:
+
+Sent message: (key-0, value-0)
+Sent message: (key-1, value-1)
+Sent message: (key-2, value-2)
+Sent message: (key-3, value-3)
+Sent message: (key-4, value-4)
+Sent message: (key-5, value-5)
+Sent message: (key-6, value-6)
+Sent message: (key-7, value-7)
+Sent message: (key-8, value-8)
+Sent message: (key-9, value-9)
+
+Consumer Output:
+
+Java Consumer Code :
+
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import java.util.Collections;
+import java.util.Properties;
+
+public class ConsumerExample {
+    public static void main(String[] args) {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", "my-group");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Collections.singletonList("my-topic"));
+
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(100);
+            records.forEach(record -> System.out.printf("Offset: %d, Key: %s, Value: %s%n",
+                    record.offset(), record.key(), record.value()));
+        }
+    }
+}
+Consumer Output:
+
+Offset: 0, Key: key-0, Value: value-0
+Offset: 1, Key: key-1, Value: value-1
+Offset: 2, Key: key-2, Value: value-2
+Offset: 3, Key: key-3, Value: value-3
+Offset: 4, Key: key-4, Value: value-4
+Offset: 5, Key: key-5, Value: value-5
+Offset: 6, Key: key-6, Value: value-6
+Offset: 7, Key: key-7, Value: value-7
+Offset: 8, Key: key-8, Value: value-8
+Offset: 9, Key: key-9, Value: value-9
